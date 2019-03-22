@@ -19,9 +19,19 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
     return headResponse;
   }
 
-  const body = await (promisify as any)(options.fs.readFile)(
-    await getPath(request.url, options)
-  );
+  const path = await getPath(request.url, options);
+
+  if (path.endsWith("/")) {
+    return new Response(undefined, {
+      status: 501,
+      statusText: options.statusCodes[501],
+      headers: {
+        Warning: "199 - Listing a directory is not yet supported"
+      }
+    });
+  }
+
+  const body = await (promisify as any)(options.fs.readFile)(path);
 
   return new Response(body, {
     status: 200,

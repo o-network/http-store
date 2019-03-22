@@ -1,5 +1,8 @@
 import { FSStoreOptions } from "../options";
 import { Request, Response, Headers } from "@opennetwork/http-representation";
+import join from "join-path";
+import getPath from "../get-path";
+import ncp from "ncp";
 
 async function handleMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
   const source = request.headers.get("Source");
@@ -15,8 +18,29 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
   }
 
   let sourceResponse: Response;
-  if (source.startsWith(".") || source.startsWith("/")) {
-    sourceResponse = await fetch(new Request(source, {
+
+  const destinationPath = await getPath(request.url, options);
+
+  const isLocal = source.startsWith(".") || source.startsWith("/");
+
+  if (isLocal && (source.endsWith("/") !== destinationPath.endsWith("/"))) {
+    return new Response(undefined, {
+      status: 400,
+      statusText: options.statusCodes[400],
+      headers: {
+        Warning: "199 - Cannot move folder to file and vise-versa"
+      }
+    });
+  } if (isLocal && source.endsWith("/") && destinationPath.endsWith("/")) {
+    return new Response(undefined, {
+      status: 501,
+      statusText: options.statusCodes[501],
+      headers: {
+        Warning: "199 - COPY on a directory is not yet supported"
+      }
+    });
+  } else if (isLocal) {
+    sourceResponse = await fetch(new Request(`file:${join(destinationPath, source)}`, {
       headers: new Headers(request.headers),
       method: "GET"
     }));

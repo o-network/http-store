@@ -16,6 +16,16 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
 
   const path = await getPath(request.url, options);
 
+  if (path.endsWith("/")) {
+    return new Response(undefined, {
+      status: 400,
+      statusText: options.statusCodes[400],
+      headers: {
+        Warning: "199 - Cannot write to directory"
+      }
+    });
+  }
+
   await (promisify as any)(options.fs.writeFile)(
     path,
     request.body
