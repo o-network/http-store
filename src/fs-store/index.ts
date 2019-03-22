@@ -15,18 +15,18 @@ class FSStore implements Store {
       this.options = options;
     }
 
-    async fetch(request: Request): Promise<Response> {
+    readonly fetch = async (request: Request): Promise<Response> => {
       const handler = METHODS[request.method.toUpperCase()];
-      if (!handler) {
-        return new Response(undefined, {
-          status: 405,
-          statusText: this.options.statusCodes[405],
-          headers: {
-            Allow: Object.keys(METHODS).join(", ")
-          }
-        });
+      if (handler) {
+        return handler(request, this.options, this.fetch);
       }
-      return handler(request, this.options, this.fetch);
+      return new Response(undefined, {
+        status: 405,
+        statusText: this.options.statusCodes[405],
+        headers: {
+          Allow: Object.keys(METHODS).join(", ")
+        }
+      });
     }
 
 }

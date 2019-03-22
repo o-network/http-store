@@ -9,5 +9,5 @@ export default async (urlString: string, options: FSStoreOptions): Promise<strin
     throw new Error("One of rootPath or getPath is required");
   }
   const url = new URL(urlString);
-  return join(this.rootPath, url.pathname);
+  return join(options.rootPath, url.pathname);
 };

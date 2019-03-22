@@ -1,6 +1,6 @@
 import { FSStoreOptions } from "../options";
 import { Request, Response } from "@opennetwork/http-representation";
-import promisify from "es6-promisify";
+import { promisify } from "es6-promisify";
 import getPath from "../get-path";
 
 async function handleMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
@@ -26,9 +26,10 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
     });
   }
 
-  await (promisify as any)(options.fs.writeFile)(
+  await promisify(options.fs.writeFile)(
     path,
-    request.body
+    request.body,
+    undefined
   );
 
   const stat = await (promisify as any)(options.fs.stat)(path)

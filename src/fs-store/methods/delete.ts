@@ -1,6 +1,6 @@
 import { FSStoreOptions } from "../options";
 import { Request, Response } from "@opennetwork/http-representation";
-import promisify from "es6-promisify";
+import { promisify } from "es6-promisify";
 import getPath from "../get-path";
 import rimraf from "rimraf";
 
@@ -27,7 +27,7 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
     await (rimraf as any)(path, options.fs);
   } else {
     // File
-    await (promisify as any)(options.fs.unlink)(path);
+    await promisify(options.fs.unlink)(path, undefined);
   }
 
   return new Response(undefined, {

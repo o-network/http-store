@@ -2,7 +2,6 @@ import { FSStoreOptions } from "../options";
 import { Request, Response, Headers } from "@opennetwork/http-representation";
 import join from "join-path";
 import getPath from "../get-path";
-import ncp from "ncp";
 
 async function handleMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
   const source = request.headers.get("Source");
