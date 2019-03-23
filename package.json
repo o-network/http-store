@@ -10,17 +10,21 @@
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "prepublishOnly": "npm run build"
   },
+  "peerDependencies": {
+    "@opennetwork/http-representation": "^1.0.4"
+  },
   "devDependencies": {
+    "@opennetwork/http-representation": "^1.0.4",
     "@types/es6-promisify": "^6.0.0",
     "@types/fs-extra": "^5.0.5",
     "@types/ncp": "^2.0.1",
     "@types/node": "^11.11.5",
     "@types/rimraf": "^2.0.2",
+    "esm": "^3.2.20",
     "tslint": "^5.14.0",
     "typescript": "^3.3.4000"
   },
   "dependencies": {
-    "@opennetwork/http-representation": "^1.0.4",
     "es6-promisify": "^6.0.1",
     "fs-extra": "^7.0.1",
     "join-path": "^1.1.1",

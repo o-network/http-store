@@ -6,6 +6,6 @@ root = true
 end_of_line = lf
 insert_final_newline = true
 
-[src/**.{js,ts,json}]
+[src/**.{js,ts,json,md}]
 indent_style = space
 indent_size = 2
