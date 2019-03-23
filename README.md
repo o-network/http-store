@@ -56,14 +56,13 @@ type FSStoreOptions = {
 
 #### Example
 
+`example.js`:
+
 ```ts
 import { Request } from "@opennetwork/http-representation";
-import { FSStore, Store } from "@opennetwork/http-store";
-import fs from "fs";
-import http from "http";
-import assert from "assert";
+import { Store } from "@opennetwork/http-store";
 
-async function runExample(store: Store) {
+export async function runExample(store: Store) {
   
   const documentUrl = "https://store.open-network.app/example/document.txt";
   const documentContent = Buffer.from("test", "utf-8");
@@ -100,6 +99,14 @@ async function runExample(store: Store) {
   assert(getResponse.body instanceof Uint8Array);
   assert(getResponse.body.toString() === documentContent.toString());
 }
+```
+
+```ts
+import { FSStore } from "@opennetwork/http-store";
+import fs from "fs";
+import http from "http";
+import assert from "assert";
+import { runExample } from "./example.js"
 
 runExample(
   new FSStore({
@@ -110,10 +117,47 @@ runExample(
 )
   .then(() => console.log("Complete!"))
   .catch((error) => console.error("Received error!", error));
-
 ```
 
+### Remote Store
 
+A remote store is just a way of representing a store that needs to be invoked across a transport (like HTTP), 
+the remote store only takes one function, which is used to fetch the remote resource. 
 
+The accepted fetcher function will receive a request, and is expected to return a response:
 
+```ts
+type Fetcher = (request: Request) => Promise<Response>;
+```
 
+#### Example
+
+(Using the same `example.js` implementation as `FSStore`)
+
+```ts
+import { RemoteStore } from "@opennetwork/http-store";
+import { Resposne } from "@opennetwork/http-representation";
+import fs from "fs";
+import http from "http";
+import assert from "assert";
+import { runExample } from "./example.js"
+import fetch from "node-fetch";
+
+runExample(
+  new RemoteStore(
+    async (request) => {
+        const response = fetch(request.url, request);
+        return new Resposne(
+            await response.buffer(),
+            {
+                status: response.status,
+                statusText: response.statusText,
+                headers: response.headers.raw()
+            }
+        );
+    }
+  )
+)
+  .then(() => console.log("Complete!"))
+  .catch((error) => console.error("Received error!", error));
+```

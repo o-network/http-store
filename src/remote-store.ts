@@ -11,9 +11,9 @@ class RemoteStore implements Store {
     this.fetcher = fetch;
   }
 
-  fetch(request: Request): Promise<Response> {
+  fetch = async (request: Request): Promise<Response> => {
     return this.fetcher(request);
-  }
+  };
 }
 
 export default RemoteStore;
