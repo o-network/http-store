@@ -2,6 +2,25 @@ import { FSStoreOptions } from "../options";
 import { Request, Response } from "@opennetwork/http-representation";
 import { promisify } from "es6-promisify";
 import getPath from "../get-path";
+import { mkdirp } from "fs-extra";
+
+async function ensureDirectoryExists(path: string, options: FSStoreOptions): Promise<any> {
+  const directoryPath = path.substr(0, path.lastIndexOf("/") + 1);
+  if (!directoryPath) {
+    // Root path must have been "." or empty
+    return;
+  }
+  const stat = await promisify(options.fs.stat)(directoryPath)
+    .catch(() => undefined);
+  if (stat && stat.isDirectory()) {
+    return;
+  } else if (stat) {
+    throw new Error("");
+  }
+  return promisify(mkdirp as (path: string, options: { fs: any }) => Promise<any>)(directoryPath, {
+    fs: options.fs
+  });
+}
 
 async function handleMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
   const headResponse = await fetch(new Request(request.url, {
@@ -25,6 +44,8 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
       }
     });
   }
+
+  await ensureDirectoryExists(path, options);
 
   await promisify(options.fs.writeFile)(
     path,
