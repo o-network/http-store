@@ -4,6 +4,22 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
+  "homepage": "https://github.com/o-network/http-store",
+  "bugs": {
+    "url": "https://github.com/o-network/http-store/issues",
+    "email": "http-store@open-network.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/o-network/http-store.git"
+  },
+  "contributors": [
+    {
+      "name": "Fabian Cook",
+      "email": "fabian.cook@open-network.dev",
+      "url": "https://github.com/fabiancook"
+    }
+  ],
   "scripts": {
     "build": "tsc --declaration && npm run tslint",
     "watch": "tsc -w",
