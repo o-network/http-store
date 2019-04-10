@@ -1,5 +1,5 @@
 import { FSStoreOptions } from "../options";
-import { Request, Response } from "@opennetwork/http-representation";
+import { Request, Response, asBuffer } from "@opennetwork/http-representation";
 import { promisify } from "es6-promisify";
 import getPath from "../get-path";
 import { mkdirp } from "fs-extra";
@@ -49,7 +49,7 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
 
   await promisify(options.fs.writeFile)(
     path,
-    request.body,
+    await asBuffer(request),
     undefined
   );
 

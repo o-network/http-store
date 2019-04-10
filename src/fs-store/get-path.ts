@@ -8,6 +8,6 @@ export default async (urlString: string, options: FSStoreOptions): Promise<strin
   if (!options.rootPath) {
     throw new Error("One of rootPath or getPath is required");
   }
-  const url = new URL(urlString);
+  const url = new URL(urlString, "https://default");
   return join(options.rootPath, url.pathname);
 };

@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@opennetwork/http-representation@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-1.0.4.tgz#e90bbb61cf9efb4c665651905426b347f5b104ed"
-  integrity sha512-nfLs/rqpltwmsiUXut6P3rexKKtICtnl5THeVdXGUbH4rl+tvFG0WvxfxPAvlCXs00z5PC/Lu2EmoBnbXpGsVA==
+"@opennetwork/http-representation@^1.0.13":
+  version "1.0.13"
+  resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-1.0.13.tgz#77957217cc3f8207d84afb9d920900f3d52ce9b2"
+  integrity sha512-zB3O6+oA0wLIvTcmquZ1sL05KYLHenzxvbAQrdhjY946y6M8Z9QLO2mOyMRP1cNc8XzlFszV6Q63RXXhCpFodg==
 
 "@types/es6-promisify@^6.0.0":
   version "6.0.0"

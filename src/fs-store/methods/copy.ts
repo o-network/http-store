@@ -1,5 +1,5 @@
 import { FSStoreOptions } from "../options";
-import { Request, Response, Headers } from "@opennetwork/http-representation";
+import { Request, Response, Headers, asBuffer } from "@opennetwork/http-representation";
 import join from "join-path";
 import getPath from "../get-path";
 
@@ -75,7 +75,7 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
   );
 
   const response = await fetch(new Request(request.url, {
-    body: (sourceResponse.body as Uint8Array),
+    body: await asBuffer(sourceResponse),
     headers: request.headers,
     method: "PUT"
   }));
