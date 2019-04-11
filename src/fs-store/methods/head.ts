@@ -1,6 +1,5 @@
 import { FSStoreOptions } from "../options";
 import { Request, Response } from "@opennetwork/http-representation";
-import { promisify } from "es6-promisify";
 import getPath from "../get-path";
 import fs from "fs";
 
@@ -37,10 +36,12 @@ function processIfModifiedSince(request: Request, options: FSStoreOptions, stat:
 async function handleMethod(request: Request, options: FSStoreOptions): Promise<Response> {
   const path = await getPath(request.url, options);
 
-  const stat = await promisify(options.fs.stat)(
-    path
-  )
-    .catch((): undefined => undefined);
+  const stat: fs.Stats = await new Promise(
+    resolve => options.fs.stat(
+      path,
+      (error, stat) => resolve(error ? undefined : stat)
+    )
+  );
 
   if (!stat) {
     return new Response(undefined, {

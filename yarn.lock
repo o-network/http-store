@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@opennetwork/http-representation@^1.0.13":
-  version "1.0.13"
-  resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-1.0.13.tgz#77957217cc3f8207d84afb9d920900f3d52ce9b2"
-  integrity sha512-zB3O6+oA0wLIvTcmquZ1sL05KYLHenzxvbAQrdhjY946y6M8Z9QLO2mOyMRP1cNc8XzlFszV6Q63RXXhCpFodg==
+"@opennetwork/http-representation@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-2.0.1.tgz#d2e9eb282f49efcc186f7d7ed00d666506542f74"
+  integrity sha512-aWzlSE5bjRi18fwt4G+Wu8n3/q5Nml3BV3rR+TC7LTl+QKqjvM8Fs8AkjVqsGRum23pA+ale+nNqod9O/PymQg==
 
 "@types/es6-promisify@^6.0.0":
   version "6.0.0"
@@ -82,11 +82,6 @@ argparse@^1.0.7:
   dependencies:
     sprintf-js "~1.0.2"
 
-as-array@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/as-array/-/as-array-2.0.0.tgz#4f04805d87f8fce8e511bc2108f8e5e3a287d547"
-  integrity sha1-TwSAXYf4/OjlEbwhCPjl46KH1Uc=
-
 babel-code-frame@^6.22.0:
   version "6.26.0"
   resolved "https://registry.npmjs.org/babel-code-frame/-/babel-code-frame-6.26.0.tgz#63fd43f7dc1e3bb7ce35947db8fe369a3f58c74b"
@@ -160,11 +155,6 @@ diff@^3.2.0:
   version "3.5.0"
   resolved "https://registry.npmjs.org/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
   integrity sha512-A46qtFgd+g7pDZinpnwiRJtxbC1hpgf0uzP3iG89scHk0AUC7A1TGxf5OiiOUv/JMZR8GOt8hL900hV0bOy5xA==
-
-es6-promisify@^6.0.1:
-  version "6.0.1"
-  resolved "https://registry.npmjs.org/es6-promisify/-/es6-promisify-6.0.1.tgz#6edaa45f3bd570ffe08febce66f7116be4b1cdb6"
-  integrity sha512-J3ZkwbEnnO+fGAKrjVpeUAnZshAdfZvbhQpqfIH9kSAspReRC4nJnu8ewm55b4y9ElyeuhCTzJD0XiH8Tsbhlw==
 
 escape-string-regexp@^1.0.2, escape-string-regexp@^1.0.5:
   version "1.0.5"
@@ -242,15 +232,6 @@ inherits@2:
   resolved "https://registry.npmjs.org/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
   integrity sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4=
 
-join-path@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.npmjs.org/join-path/-/join-path-1.1.1.tgz#10535a126d24cbd65f7ffcdf15ef2e631076b505"
-  integrity sha1-EFNaEm0ky9Zff/zfFe8uYxB2tQU=
-  dependencies:
-    as-array "^2.0.0"
-    url-join "0.0.1"
-    valid-url "^1"
-
 js-tokens@^3.0.2:
   version "3.0.2"
   resolved "https://registry.npmjs.org/js-tokens/-/js-tokens-3.0.2.tgz#9866df395102130e38f7f996bceb65443209c25b"
@@ -289,11 +270,6 @@ mkdirp@^0.5.1:
   integrity sha1-MAV0OOrGz3+MR2fzhkjWaX11yQM=
   dependencies:
     minimist "0.0.8"
-
-ncp@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/ncp/-/ncp-2.0.0.tgz#195a21d6c46e361d2fb1281ba38b91e9df7bdbb3"
-  integrity sha1-GVoh1sRuNh0vsSgbo4uR6d9727M=
 
 once@^1.3.0:
   version "1.4.0"
@@ -395,16 +371,6 @@ universalify@^0.1.0:
   version "0.1.2"
   resolved "https://registry.npmjs.org/universalify/-/universalify-0.1.2.tgz#b646f69be3942dabcecc9d6639c80dc105efaa66"
   integrity sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==
-
-url-join@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.npmjs.org/url-join/-/url-join-0.0.1.tgz#1db48ad422d3402469a87f7d97bdebfe4fb1e3c8"
-  integrity sha1-HbSK1CLTQCRpqH99l73r/k+x48g=
-
-valid-url@^1:
-  version "1.0.9"
-  resolved "https://registry.npmjs.org/valid-url/-/valid-url-1.0.9.tgz#1c14479b40f1397a75782f115e4086447433a200"
-  integrity sha1-HBRHm0DxOXp1eC8RXkCGRHQzogA=
 
 wrappy@1:
   version "1.0.2"

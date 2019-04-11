@@ -1,5 +1,5 @@
 import { FSStoreOptions } from "./options";
-import join from "join-path";
+import { joinWithRoot } from "./join-path";
 
 export default async (urlString: string, options: FSStoreOptions): Promise<string> => {
   if (options.getPath) {
@@ -9,5 +9,5 @@ export default async (urlString: string, options: FSStoreOptions): Promise<strin
     throw new Error("One of rootPath or getPath is required");
   }
   const url = new URL(urlString, "https://default");
-  return join(options.rootPath, url.pathname);
+  return joinWithRoot(options.rootPath, url.pathname);
 };

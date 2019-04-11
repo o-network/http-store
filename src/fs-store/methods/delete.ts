@@ -1,8 +1,26 @@
 import { FSStoreOptions } from "../options";
 import { Request, Response } from "@opennetwork/http-representation";
-import { promisify } from "es6-promisify";
 import getPath from "../get-path";
-import rimraf from "rimraf";
+
+function isRimRafAvailable(options: FSStoreOptions): boolean {
+  if (!options.rimraf) {
+    return false;
+  }
+  // They requested to not check for rimraf functions, so they must have their own implementation
+  if (options.rimraf.noFSFunctionCheck) {
+    return true;
+  }
+  const required = [
+    "unlink",
+    "lstat",
+    "chmod",
+    "stat",
+    "rmdir",
+    "readdir"
+  ];
+  const missing = required.findIndex(name => !((options.fs as any)[name] instanceof Function));
+  return missing === -1;
+}
 
 async function handleMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
   const headResponse = await fetch(
@@ -24,10 +42,32 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
 
   if (path.endsWith("/")) {
     // Directory
-    await (rimraf as any)(path, options.fs);
+    if (!isRimRafAvailable(options)) {
+      return new Response(undefined, {
+        status: 501,
+        statusText: options.statusCodes[501],
+        headers: {
+          Warning: "199 - Cannot delete directory, not all required fs methods are available"
+        }
+      });
+    }
+    // rimraf mutates the options provided, so create a new object
+    await (options.rimraf as any)(path, {
+      unlink: options.fs.unlink,
+      lstat: options.fs.lstat,
+      chmod: options.fs.chmod,
+      stat: options.fs.stat,
+      rmdir: options.fs.rmdir,
+      readdir: options.fs.readdir,
+    });
   } else {
     // File
-    await promisify(options.fs.unlink)(path, undefined);
+    await new Promise(
+      (resolve, reject) => options.fs.unlink(
+        path,
+        (error) => error ? reject(error) : resolve()
+      )
+    );
   }
 
   return new Response(undefined, {

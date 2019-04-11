@@ -1,8 +1,23 @@
 import { FSStoreOptions } from "../options";
 import { Request, Response, asBuffer } from "@opennetwork/http-representation";
-import { promisify } from "es6-promisify";
 import getPath from "../get-path";
-import { mkdirp } from "fs-extra";
+import fs from "fs";
+
+function isMakeDirectoryAvailable(options: FSStoreOptions): boolean {
+  if (!options.mkdirp) {
+    return false;
+  }
+  // They requested to not check for rimraf functions, so they must have their own implementation
+  if (options.mkdirp.noFSFunctionCheck) {
+    return true;
+  }
+  const required = [
+    "mkdir",
+    "stat"
+  ];
+  const missing = required.findIndex(name => !((options.fs as any)[name] instanceof Function));
+  return missing === -1;
+}
 
 async function ensureDirectoryExists(path: string, options: FSStoreOptions): Promise<any> {
   const directoryPath = path.substr(0, path.lastIndexOf("/") + 1);
@@ -10,16 +25,35 @@ async function ensureDirectoryExists(path: string, options: FSStoreOptions): Pro
     // Root path must have been "." or empty
     return;
   }
-  const stat = await promisify(options.fs.stat)(directoryPath)
-    .catch(() => undefined);
+  const stat: fs.Stats = await new Promise(
+    resolve => options.fs.stat(
+      directoryPath,
+      (error, stat) => resolve(error ? undefined : stat)
+    )
+  );
   if (stat && stat.isDirectory()) {
     return;
   } else if (stat) {
     throw new Error("");
   }
-  return promisify(mkdirp as (path: string, options: { fs: any }) => Promise<any>)(directoryPath, {
-    fs: options.fs
-  });
+  if (!isMakeDirectoryAvailable(options)) {
+    return new Response(undefined, {
+      status: 501,
+      statusText: options.statusCodes[501],
+      headers: {
+        Warning: "199 - Cannot create directory, not all required fs methods are available"
+      }
+    });
+  }
+  return new Promise(
+    (resolve, reject) => options.mkdirp(
+      directoryPath,
+      {
+        fs: options.fs
+      },
+      (error) => error ? reject(error) : resolve()
+    )
+  );
 }
 
 async function handleMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
@@ -45,18 +79,31 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
     });
   }
 
-  await ensureDirectoryExists(path, options);
+  const earlyResponse = await ensureDirectoryExists(path, options);
 
-  await promisify(options.fs.writeFile)(
-    path,
-    await asBuffer(request),
-    undefined
+  if (earlyResponse) {
+    return earlyResponse;
+  }
+
+  const body = await asBuffer(request);
+
+  await new Promise(
+    (resolve, reject) => options.fs.writeFile(
+      path,
+      body,
+      (error) => error ? reject(error) : resolve()
+    )
   );
 
-  const stat = await (promisify as any)(options.fs.stat)(path)
-    .catch((): undefined => undefined);
+  const stat: fs.Stats = await new Promise(
+    resolve => options.fs.stat(
+      path,
+      (error, stat) => resolve(error ? undefined : stat)
+    )
+  );
 
-  if (!stat) {
+  // Just do a sanity check to see if we saved correctly
+  if (!(stat && stat.isFile())) {
     return new Response(undefined, {
       status: 500,
       statusText: options.statusCodes[500],

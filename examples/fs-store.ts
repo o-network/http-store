@@ -1,8 +1,10 @@
-import { Request } from "@opennetwork/http-representation";
+import { asBuffer, Request } from "@opennetwork/http-representation";
 import { FSStore, Store } from "../src";
 import fs from "fs";
 import http from "http";
 import assert from "assert";
+import { mkdirp } from "fs-extra";
+import rimraf from "rimraf";
 
 async function runExample(store: Store) {
 
@@ -36,17 +38,19 @@ async function runExample(store: Store) {
         )
     );
 
-    assert(getResponse.ok);
+    const body = await asBuffer(getResponse);
 
-    assert(getResponse.body instanceof Uint8Array);
-    assert(getResponse.body.toString() === documentContent.toString());
+    assert(body instanceof Uint8Array);
+    assert(body.toString() === documentContent.toString());
 }
 
 runExample(
     new FSStore({
         fs,
         rootPath: "./store",
-        statusCodes: http.STATUS_CODES
+        statusCodes: http.STATUS_CODES,
+        mkdirp,
+        rimraf
     })
 )
     .then(() => console.log("Complete!"))

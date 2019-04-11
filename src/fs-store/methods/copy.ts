@@ -1,7 +1,21 @@
 import { FSStoreOptions } from "../options";
 import { Request, Response, Headers, asBuffer } from "@opennetwork/http-representation";
-import join from "join-path";
 import getPath from "../get-path";
+import { resolve } from "../join-path";
+
+function getSourceURI(destinationUrl: string, source: string): string {
+  const destination = new URL(destinationUrl);
+  if (/^(?:[a-z0-9-_]+:|\/)/i.test(source)) {
+    // Absolute url with schema, or absolute path
+    return new URL(source, destination.origin).toString();
+  }
+
+  const destinationDirectory = destination.pathname.substr(0, destination.pathname.lastIndexOf("/")) + "/";
+  return new URL(
+    resolve(destinationDirectory, source),
+    destination.origin
+  ).toString();
+}
 
 async function handleMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
   const source = request.headers.get("Source");
@@ -39,7 +53,7 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
       }
     });
   } else if (isLocal) {
-    sourceResponse = await fetch(new Request(`file:${join(destinationPath, source)}`, {
+    sourceResponse = await fetch(new Request(getSourceURI(request.url, source), {
       headers: new Headers(request.headers),
       method: "GET"
     }));
