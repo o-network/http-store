@@ -1,10 +1,11 @@
 import Store from "../store";
 import { Request, Response } from "@opennetwork/http-representation";
-import { FSStoreOptions } from "./options";
+import { FSStoreOptions, FSStoreRequestOptions } from "./options";
 import { METHODS, MethodHandler } from "./methods";
 
 export {
-  FSStoreOptions
+  FSStoreOptions,
+  FSStoreRequestOptions
 };
 
 class FSStore implements Store {
@@ -58,10 +59,20 @@ class FSStore implements Store {
       return this.isMethodAvailable(method) ? handler : undefined;
     }
 
-    readonly fetch = async (request: Request): Promise<Response> => {
+    readonly fetch = async (request: Request, options: FSStoreRequestOptions = undefined): Promise<Response> => {
       const handler = this.getHandler(request.method);
       if (handler) {
-        return handler(request, this.options, this.fetch);
+        const newOptions = {
+          ...this.options,
+          ...(options || {})
+        };
+        // When we call an external fetch, pass this fetch as the new fetch, anything invoked inside
+        // will only ever use this fetch within that set
+        const fetcher = (request: Request) => (newOptions.fetch || this.fetch)(request, {
+          ...newOptions,
+          fetch: this.fetch
+        });
+        return handler(request, newOptions, fetcher);
       }
       return new Response(undefined, {
         status: 405,

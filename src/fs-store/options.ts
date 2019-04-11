@@ -65,5 +65,9 @@ export type FSStoreOptions = {
     [errorCode: number]: string | undefined;
     [errorCode: string]: string | undefined;
   };
-  getExternalResource?: (url: string, request: Request) => Promise<Response>
+  getExternalResource?: (url: string, request: Request) => Promise<Response>;
+} & FSStoreRequestOptions;
+
+export type FSStoreRequestOptions = {
+  fetch?: (request: Request, options?: FSStoreRequestOptions | FSStoreOptions) => Promise<Response>;
 };
