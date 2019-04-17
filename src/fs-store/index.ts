@@ -52,6 +52,11 @@ class FSStore implements Store {
         "stat",
         "readFile",
         "writeFile"
+      ],
+      // Same as PUT
+      POST: [
+        "stat",
+        "writeFile"
       ]
     } as any)[method.toUpperCase()];
 

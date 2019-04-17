@@ -3,6 +3,7 @@ import handleDelete from "./delete";
 import handleGet from "./get";
 import handleHead from "./head";
 import handleOptions from "./options";
+import handlePost from "./post";
 import handlePut from "./put";
 import { Request, Response } from "@opennetwork/http-representation";
 import { FSStoreOptions } from "../options";
@@ -16,6 +17,7 @@ export {
   handleGet,
   handleHead,
   handleOptions,
+  handlePost,
   handlePut
 };
 
@@ -25,5 +27,6 @@ export const METHODS: { [key: string /* RequestMethod */]: MethodHandler } = {
   GET: handleGet,
   HEAD: handleHead,
   OPTIONS: handleOptions,
+  POST: handlePost,
   PUT: handlePut
 };
