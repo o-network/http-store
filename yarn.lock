@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@opennetwork/http-representation@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-2.0.1.tgz#d2e9eb282f49efcc186f7d7ed00d666506542f74"
-  integrity sha512-aWzlSE5bjRi18fwt4G+Wu8n3/q5Nml3BV3rR+TC7LTl+QKqjvM8Fs8AkjVqsGRum23pA+ale+nNqod9O/PymQg==
+"@opennetwork/http-representation@^2.0.7":
+  version "2.0.7"
+  resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-2.0.7.tgz#37301955650ca511d5190f68b96354ed27ea5c2e"
+  integrity sha512-l0C47WOjubHuwuC8IsKePgPQmot5+YAp6vHcISVe57oCRgmkC7lBbFlcGc8Qfn/PZNyEDX/sNfXrZeM+qolJOg==
 
 "@types/es6-promisify@^6.0.0":
   version "6.0.0"
@@ -278,6 +278,11 @@ once@^1.3.0:
   dependencies:
     wrappy "1"
 
+parse-multipart@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/parse-multipart/-/parse-multipart-1.0.4.tgz#767b8788b2487b87b83a19615cd6ba78a8d14492"
+  integrity sha1-dnuHiLJIe4e4OhlhXNa6eKjRRJI=
+
 path-is-absolute@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.1.tgz#174b9268735534ffbc7ace6bf53a5a9e1b5c5f5f"
@@ -287,6 +292,11 @@ path-parse@^1.0.6:
   version "1.0.6"
   resolved "https://registry.npmjs.org/path-parse/-/path-parse-1.0.6.tgz#d62dbb5679405d72c4737ec58600e9ddcf06d24c"
   integrity sha512-GSmOT2EbHrINBf9SR7CDELwlJ8AENk3Qn7OikK4nFYAu3Ote2+JYNVvkpAEQm3/TLNEJFD/xZJjzyxg3KBWOzw==
+
+pure-uuid@^1.5.7:
+  version "1.5.7"
+  resolved "https://registry.npmjs.org/pure-uuid/-/pure-uuid-1.5.7.tgz#c089845d85e3b33a070bf4dc8cce30906880e9bd"
+  integrity sha512-g8kcLZcJi1ePpuNxrnI6a4re2ze89FPnV6dXaDuW4K9+n+SzvolhR2uoZhHJvz1Ilba0U8hvb1clxTLN49EvuQ==
 
 resolve@^1.3.2:
   version "1.10.0"

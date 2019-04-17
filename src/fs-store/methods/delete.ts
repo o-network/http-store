@@ -22,7 +22,7 @@ function isRimRafAvailable(options: FSStoreOptions): boolean {
   return missing === -1;
 }
 
-async function handleMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+async function handleDeleteMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
   const headResponse = await fetch(
     new Request(
       request.url,
@@ -76,4 +76,4 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
   });
 }
 
-export default handleMethod;
+export default handleDeleteMethod;

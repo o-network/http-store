@@ -33,7 +33,7 @@ function processIfModifiedSince(request: Request, options: FSStoreOptions, stat:
   });
 }
 
-async function handleMethod(request: Request, options: FSStoreOptions): Promise<Response> {
+async function handleHeadMethod(request: Request, options: FSStoreOptions): Promise<Response> {
   const path = await getPath(request.url, options);
 
   const stat: fs.Stats = await new Promise(
@@ -75,4 +75,4 @@ async function handleMethod(request: Request, options: FSStoreOptions): Promise<
   return response;
 }
 
-export default handleMethod;
+export default handleHeadMethod;

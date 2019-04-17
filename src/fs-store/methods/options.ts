@@ -1,7 +1,7 @@
 import { FSStoreOptions } from "../options";
 import { Request, Response } from "@opennetwork/http-representation";
 
-async function handleMethod(request: Request, options: FSStoreOptions): Promise<Response> {
+async function handleOptionsMethod(request: Request, options: FSStoreOptions): Promise<Response> {
   // Nothing to do, CORS etc will be handled by a level above
   return new Response(undefined, {
     status: 200,
@@ -9,4 +9,4 @@ async function handleMethod(request: Request, options: FSStoreOptions): Promise<
   });
 }
 
-export default handleMethod;
+export default handleOptionsMethod;

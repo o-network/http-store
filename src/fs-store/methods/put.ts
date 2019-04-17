@@ -56,7 +56,7 @@ async function ensureDirectoryExists(path: string, options: FSStoreOptions): Pro
   );
 }
 
-async function handleMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+async function handlePutMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
   const headResponse = await fetch(new Request(request.url, {
     headers: request.headers,
     method: "HEAD"
@@ -114,14 +114,20 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
   }
 
   const status = headResponse.status === 404 ? 201 : 204;
+
+  const headers: { [key: string]: string } = {
+    "Last-Modified": stat.mtime.toUTCString()
+  };
+
+  if (status === 201) {
+    headers["Location"] = request.url;
+  }
+
   return new Response(undefined, {
     status,
     statusText: options.statusCodes[status],
-    headers: {
-      "Location": request.url,
-      "Last-Modified": stat.mtime.toUTCString()
-    }
+    headers
   });
 }
 
-export default handleMethod;
+export default handlePutMethod;

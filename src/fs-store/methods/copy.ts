@@ -17,7 +17,7 @@ function getSourceURI(destinationUrl: string, source: string): string {
   ).toString();
 }
 
-async function handleMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+async function handleCopyMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
   const source = request.headers.get("Source");
 
   if (!source) {
@@ -107,4 +107,4 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
   });
 }
 
-export default handleMethod;
+export default handleCopyMethod;

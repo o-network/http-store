@@ -2,7 +2,7 @@ import { FSStoreOptions } from "../options";
 import { Request, Response } from "@opennetwork/http-representation";
 import getPath from "../get-path";
 
-async function handleMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+async function handleGetMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
   const headResponse = await fetch(
     new Request(
       request.url,
@@ -44,4 +44,4 @@ async function handleMethod(request: Request, options: FSStoreOptions, fetch: (r
   });
 }
 
-export default handleMethod;
+export default handleGetMethod;
