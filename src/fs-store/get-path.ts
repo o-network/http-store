@@ -1,13 +1,15 @@
 import { FSStoreOptions } from "./options";
 import { joinWithRoot } from "./join-path";
+import { Response } from "@opennetwork/http-representation";
 
 export default async (urlString: string, options: FSStoreOptions): Promise<string> => {
+  const contentLocation = urlString;
   if (options.getPath) {
-    return options.getPath(urlString);
+    return options.getPath(contentLocation);
   }
   if (!options.rootPath) {
     throw new Error("One of rootPath or getPath is required");
   }
-  const url = new URL(urlString, "https://default");
+  const url = new URL(contentLocation, "https://default");
   return joinWithRoot(options.rootPath, url.pathname);
 };

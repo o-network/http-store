@@ -2,6 +2,7 @@ import { FSStoreOptions } from "../options";
 import { Request, Response, Headers, asBuffer } from "@opennetwork/http-representation";
 import getPath from "../get-path";
 import { resolve } from "../join-path";
+import { getContentLocation } from "./head";
 
 function getSourceURI(destinationUrl: string, source: string): string {
   const destination = new URL(destinationUrl);
@@ -18,6 +19,8 @@ function getSourceURI(destinationUrl: string, source: string): string {
 }
 
 async function handleCopyMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+  const { contentLocation } = await getContentLocation(request, options);
+
   const source = request.headers.get("Source");
 
   if (!source) {
@@ -32,7 +35,7 @@ async function handleCopyMethod(request: Request, options: FSStoreOptions, fetch
 
   let sourceResponse: Response;
 
-  const destinationPath = await getPath(request.url, options);
+  const destinationPath = await getPath(contentLocation || request.url, options);
 
   const isLocal = source.startsWith(".") || source.startsWith("/");
 

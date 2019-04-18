@@ -10,7 +10,7 @@ import { dirname, basename, extname } from "path";
 import Negotiator from "negotiator";
 
 async function runExample(store) {
-  const documentUrl = "https://store.open-network.app/example/document.txt";
+  const documentUrl = "https://store.open-network.app/example/document";
   const documentContent = Buffer.from("test", "utf-8");
 
   const putResponse = await store.fetch(
@@ -42,6 +42,8 @@ async function runExample(store) {
 
   assert(getResponse.ok);
 
+  console.log(getResponse.headers);
+
   assert(getResponse.headers.get("Content-Type") === "text/plain");
 
   const body = await asBuffer(getResponse);
@@ -70,6 +72,14 @@ runExample(
     rimraf,
     getContentType,
     getContentLocation: async (request, getPath) => {
+      const magicExtensionRegex = /\$\.[a-z0-9]+/i;
+
+      const url = new URL(request.url);
+
+      if (request.method === "PUT" && magicExtensionRegex.test(url.pathname)) {
+        // The user has requested to use a magic extension directly
+        return undefined;
+      }
 
       const path = await getPath(request.url);
 
@@ -89,18 +99,15 @@ runExample(
         return undefined;
       }
 
-      const url = new URL(request.url);
-
+      const providedType = (request.headers.get("Content-Type") || "").split(";")[0].trim();
       const extensionType = lookup(url.pathname);
 
-      const providedType = (request.headers.get("Content-Type") || "").split(";")[0].trim();
-
-      if (extensionType && providedType && extensionType === providedType) {
-        return extensionType;
+      if (request.method === "PUT" && extensionType && providedType && extensionType === providedType) {
+        return undefined;
       }
 
       if (request.method === "PUT") {
-        url.pathname += `$.${extensionType ? extension(extensionType) : "unknown"}`;
+        url.pathname += `$.${(extensionType || providedType) ? extension(extensionType || providedType) : "unknown"}`;
         return url.toString();
       }
 
@@ -109,6 +116,7 @@ runExample(
       const directoryStat = await stat(directory);
 
       if (!directoryStat || !directoryStat.isDirectory()) {
+        console.log({ directory, directoryStat });
         return undefined;
       }
 
@@ -123,14 +131,12 @@ runExample(
         )
       );
 
-      const magicExtensionRegex = /\$\.[a-z0-9]+/i;
-
       const baseName = basename(path, extname(path));
 
       const matching = files
         .filter(file => file.isFile())
         .filter(file => magicExtensionRegex.test(file.name))
-        .filter(file => file.name.replace(magicExtensionRegex) === baseName)
+        .filter(file => file.name.replace(magicExtensionRegex, "") === baseName)
         .map(file => file.name);
 
       if (matching.length === 0) {
@@ -157,6 +163,8 @@ runExample(
 
       const negotiator = new Negotiator({ headers });
       const preferredContentType = negotiator.mediaTypes(contentTypes);
+
+      console.log({ matchingWithContentType, contentTypes, preferredContentType });
 
       if (!preferredContentType) {
         // Use the first found, there is no preferred

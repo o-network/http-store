@@ -1,5 +1,5 @@
 import Store from "../store";
-import { Request, Response } from "@opennetwork/http-representation";
+import { Request, Response, Headers } from "@opennetwork/http-representation";
 import { FSStoreOptions, FSStoreRequestOptions } from "./options";
 import { METHODS, MethodHandler, Fetcher } from "./methods";
 import { findAvailablePOSTUrl } from "./methods/post";
@@ -17,11 +17,15 @@ class FSStore implements Store {
     this.options = options;
   }
 
-  public findAvailablePOSTUrl(baseUrl: string, options: FSStoreRequestOptions = undefined): Promise<string> {
+  public findAvailablePOSTUrl(baseUrl: string, options: FSStoreRequestOptions = undefined, request: Request = undefined): Promise<string> {
+    // If no request is passed, do the same process as we previously had
+    const useRequest = request || new Request(baseUrl, {
+      method: "POST"
+    });
     const newOptions = this.getOptions(options);
     const fetcher = this.getFetcher(newOptions);
     return findAvailablePOSTUrl(
-      baseUrl,
+      useRequest,
       newOptions,
       fetcher
     );

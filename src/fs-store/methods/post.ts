@@ -90,8 +90,8 @@ async function handleMultipart(request: Request, options: FSStoreOptions, fetch:
   );
 }
 
-export async function findAvailablePOSTUrl(baseUrl: string, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<string> {
-  const url = new URL(baseUrl);
+export async function findAvailablePOSTUrl(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<string> {
+  const url = new URL(request.url);
 
   // Must be a container
   if (!url.pathname.endsWith("/")) {
@@ -100,14 +100,14 @@ export async function findAvailablePOSTUrl(baseUrl: string, options: FSStoreOpti
 
   // Namespace the UUID to the origin
   const uuid = new UUID(5, "ns:URL", url.origin);
-
   url.pathname += uuid.format("std");
 
   const response = await fetch(
     new Request(
       url.toString(),
       {
-        method: "HEAD"
+        method: "HEAD",
+        headers: request.headers
       }
     )
   );
@@ -119,7 +119,7 @@ export async function findAvailablePOSTUrl(baseUrl: string, options: FSStoreOpti
 
   // Try again with a new UUID, this should probably never be possible
   // but do it _just_ in case
-  return findAvailablePOSTUrl(baseUrl, options, fetch);
+  return findAvailablePOSTUrl(request, options, fetch);
 }
 
 async function handlePostMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
@@ -130,7 +130,7 @@ async function handlePostMethod(request: Request, options: FSStoreOptions, fetch
   return handlePut(
     new Request(
       // Find a new url for our resource
-      await findAvailablePOSTUrl(request.url, options, fetch),
+      await findAvailablePOSTUrl(request, options, fetch),
       {
         method: "PUT",
         headers: request.headers,

@@ -1,6 +1,7 @@
 import { FSStoreOptions } from "../options";
 import { Request, Response } from "@opennetwork/http-representation";
 import getPath from "../get-path";
+import { getContentLocation } from "./head";
 
 function isRimRafAvailable(options: FSStoreOptions): boolean {
   if (!options.rimraf) {
@@ -23,12 +24,14 @@ function isRimRafAvailable(options: FSStoreOptions): boolean {
 }
 
 async function handleDeleteMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+  const { contentLocation } = await getContentLocation(request, options);
+
   const headResponse = await fetch(
     new Request(
-      request.url,
+      contentLocation || request.url,
       {
-        ...request,
-        method: "HEAD"
+        method: "HEAD",
+        headers: request.headers
       }
     )
   );
@@ -38,7 +41,7 @@ async function handleDeleteMethod(request: Request, options: FSStoreOptions, fet
     return headResponse;
   }
 
-  const path = await getPath(request.url, options);
+  const path = await getPath(contentLocation || request.url, options);
 
   if (path.endsWith("/")) {
     // Directory

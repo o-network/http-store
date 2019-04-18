@@ -66,6 +66,11 @@ export type FSStoreOptions = {
     [errorCode: string]: string | undefined;
   };
   getExternalResource?: (url: string, request: Request) => Promise<Response>;
+  getContentLocation?: (request: Request, getPath: (url: string) => Promise<string>) => Promise<string>;
+  getPossibleSuffixes?: (request: Request, path: string) => string[] | Promise<string[]>;
+  getContentTypeBody?: true | false | ((request: Request, contentLocation: string, body: Uint8Array) => string | Promise<string>);
+  getContentType?: (request: Request, contentLocation: string, body?: Uint8Array) => string | Promise<string>;
+
 } & FSStoreRequestOptions;
 
 export type FSStoreRequestOptions = {

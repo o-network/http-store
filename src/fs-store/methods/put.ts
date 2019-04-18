@@ -2,6 +2,7 @@ import { FSStoreOptions } from "../options";
 import { Request, Response, asBuffer } from "@opennetwork/http-representation";
 import getPath from "../get-path";
 import fs from "fs";
+import { getContentLocation } from "./head";
 
 function isMakeDirectoryAvailable(options: FSStoreOptions): boolean {
   if (!options.mkdirp) {
@@ -57,17 +58,24 @@ async function ensureDirectoryExists(path: string, options: FSStoreOptions): Pro
 }
 
 async function handlePutMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
-  const headResponse = await fetch(new Request(request.url, {
-    headers: request.headers,
-    method: "HEAD"
-  }));
+  const { contentLocation } = await getContentLocation(request, options);
+
+  const headResponse = await fetch(
+    new Request(
+      contentLocation || request.url,
+      {
+        method: "HEAD",
+        headers: request.headers
+      }
+    )
+  );
 
   // 404 is okay, as we will create it
   if (!headResponse.ok && headResponse.status !== 404) {
     return headResponse;
   }
 
-  const path = await getPath(request.url, options);
+  const path = await getPath(contentLocation || request.url, options);
 
   if (path.endsWith("/")) {
     return new Response(undefined, {
@@ -115,19 +123,22 @@ async function handlePutMethod(request: Request, options: FSStoreOptions, fetch:
 
   const status = headResponse.status === 404 ? 201 : 204;
 
-  const headers: { [key: string]: string } = {
-    "Last-Modified": stat.mtime.toUTCString()
-  };
-
-  if (status === 201) {
-    headers["Location"] = request.url;
-  }
-
-  return new Response(undefined, {
+  const response = new Response(undefined, {
     status,
     statusText: options.statusCodes[status],
-    headers
+    headers: headResponse.headers
   });
+
+  response.headers.set("Last-Modified", stat.mtime.toUTCString());
+
+  if (status === 201) {
+    response.headers.set("Location", request.url);
+  }
+
+  // Content-Length is set by HEAD, but we don't want it to be returned
+  response.headers.delete("Content-Length");
+
+  return response;
 }
 
 export default handlePutMethod;
