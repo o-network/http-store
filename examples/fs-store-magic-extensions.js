@@ -72,7 +72,7 @@ runExample(
     rimraf,
     getContentType,
     getContentLocation: async (request, getPath) => {
-      const magicExtensionRegex = /\$\.[a-z0-9]+/i;
+      const magicExtensionRegex = /\$\.[^.]+/i;
 
       const url = new URL(request.url);
 
