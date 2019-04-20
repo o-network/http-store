@@ -2,7 +2,7 @@ import { FSStoreOptions } from "../options";
 import { Request, Response, Headers, asBuffer } from "@opennetwork/http-representation";
 import getPath from "../get-path";
 import { resolve } from "../join-path";
-import { getContentLocation } from "./head";
+import getContentLocation from "../get-content-location";
 
 function getSourceURI(destinationUrl: string, source: string): string {
   const destination = new URL(destinationUrl);

@@ -2,7 +2,7 @@ import { FSStoreOptions } from "../options";
 import { Request, Response, asBuffer } from "@opennetwork/http-representation";
 import getPath from "../get-path";
 import fs from "fs";
-import { getContentLocation } from "./head";
+import getContentLocation from "../get-content-location";
 
 function isMakeDirectoryAvailable(options: FSStoreOptions): boolean {
   if (!options.mkdirp) {

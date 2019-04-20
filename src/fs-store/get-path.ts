@@ -1,6 +1,5 @@
 import { FSStoreOptions } from "./options";
 import { joinWithRoot } from "./join-path";
-import { Response } from "@opennetwork/http-representation";
 
 export default async (urlString: string, options: FSStoreOptions): Promise<string> => {
   const contentLocation = urlString;

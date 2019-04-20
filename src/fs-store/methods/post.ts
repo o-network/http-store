@@ -4,8 +4,8 @@ import handlePut from "./put";
 import Multipart from "parse-multipart";
 import { resolve } from "../join-path";
 import isType from "../is-type";
-import UUID from "pure-uuid";
 import globalThis from "@ungap/global-this";
+import getContentLocation from "../get-content-location";
 
 async function getBody(request: Request): Promise<Uint8Array> {
   if ("Buffer" in globalThis) {
@@ -90,46 +90,15 @@ async function handleMultipart(request: Request, options: FSStoreOptions, fetch:
   );
 }
 
-export async function findAvailablePOSTUrl(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<string> {
-  const url = new URL(request.url);
-
-  // Must be a container
-  if (!url.pathname.endsWith("/")) {
-    url.pathname += "/";
-  }
-
-  const uuid = new UUID(4);
-  url.pathname += uuid.format("std");
-
-  const response = await fetch(
-    new Request(
-      url.toString(),
-      {
-        method: "HEAD",
-        headers: request.headers
-      }
-    )
-  );
-
-  // Doesn't exist, so lets use that
-  if (response.status === 404) {
-    return url.toString();
-  }
-
-  // Try again with a new UUID, this should probably never be possible
-  // but do it _just_ in case
-  return findAvailablePOSTUrl(request, options, fetch);
-}
-
 async function handlePostMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
   if (isType(request.headers, "multipart/form-data")) {
     return handleMultipart(request, options, fetch);
   }
+  const { contentLocation } = await getContentLocation(request, options);
   // Single file maps to a put
   return handlePut(
     new Request(
-      // Find a new url for our resource
-      await findAvailablePOSTUrl(request, options, fetch),
+      contentLocation,
       {
         method: "PUT",
         headers: request.headers,

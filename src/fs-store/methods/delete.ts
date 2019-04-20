@@ -1,7 +1,7 @@
 import { FSStoreOptions } from "../options";
 import { Request, Response } from "@opennetwork/http-representation";
 import getPath from "../get-path";
-import { getContentLocation } from "./head";
+import getContentLocation from "../get-content-location";
 
 function isRimRafAvailable(options: FSStoreOptions): boolean {
   if (!options.rimraf) {

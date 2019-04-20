@@ -1,7 +1,7 @@
 import { FSStoreOptions } from "../options";
 import { Request, Response, Headers } from "@opennetwork/http-representation";
 import getPath from "../get-path";
-import { getContentLocation } from "./head";
+import getContentLocation from "../get-content-location";
 
 async function handleGetMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
   const { contentLocation } = await getContentLocation(request, options);
