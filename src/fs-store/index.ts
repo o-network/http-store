@@ -1,15 +1,12 @@
-import Store from "../store";
-import { Request, Response, Headers } from "@opennetwork/http-representation";
+import { Store } from "../store";
+import { Request, Response } from "@opennetwork/http-representation";
 import { FSStoreOptions, FSStoreRequestOptions } from "./options";
 import { METHODS, MethodHandler, Fetcher } from "./methods";
 import { findAvailablePOSTUrl } from "./methods/post";
 
-export {
-  FSStoreOptions,
-  FSStoreRequestOptions
-};
+export * from "./options";
 
-class FSStore implements Store {
+export class FSStore implements Store {
 
   private readonly options: FSStoreOptions;
 
@@ -112,5 +109,3 @@ class FSStore implements Store {
   }
 
 }
-
-export default FSStore;

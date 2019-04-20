@@ -1,9 +1,7 @@
 import { Request, Response } from "@opennetwork/http-representation";
-import Store from "./store";
+import { Store, Fetcher } from "./store";
 
-export type Fetcher = (request: Request) => Promise<Response>;
-
-class RemoteStore implements Store {
+export class RemoteStore implements Store {
 
   private readonly fetcher: Fetcher;
 
@@ -11,9 +9,7 @@ class RemoteStore implements Store {
     this.fetcher = fetch;
   }
 
-  fetch = async (request: Request): Promise<Response> => {
-    return this.fetcher(request);
+  fetch = async (request: Request, options?: any): Promise<Response> => {
+    return this.fetcher(request, options);
   };
 }
-
-export default RemoteStore;

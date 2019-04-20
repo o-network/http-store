@@ -30,7 +30,7 @@
     "@opennetwork/http-representation": "^2.0.1"
   },
   "devDependencies": {
-    "@opennetwork/http-representation": "^2.0.12",
+    "@opennetwork/http-representation": "^2.0.13",
     "@types/es6-promisify": "^6.0.0",
     "@types/fs-extra": "^5.0.5",
     "@types/ncp": "^2.0.1",
@@ -44,7 +44,7 @@
     "typescript": "^3.3.4000"
   },
   "dependencies": {
-    "negotiator": "^0.6.1",
+    "@ungap/global-this": "^0.3.1",
     "parse-multipart": "^1.0.4",
     "pure-uuid": "^1.5.7"
   }

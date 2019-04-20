@@ -2,13 +2,13 @@ import { FSStoreOptions } from "../options";
 import { asBuffer, Request, Response, Headers } from "@opennetwork/http-representation";
 import handlePut from "./put";
 import Multipart from "parse-multipart";
-import globalOrSelf from "../../global-or-self";
 import { resolve } from "../join-path";
 import isType from "../is-type";
 import UUID from "pure-uuid";
+import globalThis from "@ungap/global-this";
 
 async function getBody(request: Request): Promise<Uint8Array> {
-  if ("Buffer" in globalOrSelf) {
+  if ("Buffer" in globalThis) {
     return asBuffer(request);
   }
   const arrayBuffer = await request.arrayBuffer();
@@ -98,8 +98,7 @@ export async function findAvailablePOSTUrl(request: Request, options: FSStoreOpt
     url.pathname += "/";
   }
 
-  // Namespace the UUID to the origin
-  const uuid = new UUID(5, "ns:URL", url.origin);
+  const uuid = new UUID(4);
   url.pathname += uuid.format("std");
 
   const response = await fetch(
