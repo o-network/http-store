@@ -55,13 +55,13 @@ export class LayerStore implements Store {
     return this;
   }
 
-  fetch = async (request: Request, options?: any): Promise<Response> => {
+  builder = async (request: Request, options?: any): Promise<ResponseBuilder> => {
     const builder = new ResponseBuilder(this.options as ResponseBuilderOptions);
 
     const layers = options && options.layers || this.layers;
 
     if (!layers.length) {
-      return undefined;
+      return builder;
     }
 
     const runLayer = async (continuePromise: Promise<boolean>, layer: Layer, index: number, layers: Layer[]): Promise<boolean> => {
@@ -97,9 +97,17 @@ export class LayerStore implements Store {
     );
 
     if (!builder.responses.length) {
-      return notAllowed();
+      return builder.with(notAllowed());
     }
 
+    return builder;
+  };
+
+  fetch = async (request: Request, options?: any): Promise<Response> => {
+    const builder = await this.builder(request, options);
+    if (builder.responses.length === 0) {
+      return undefined;
+    }
     return builder.build();
   };
 
