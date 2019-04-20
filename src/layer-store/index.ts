@@ -83,7 +83,7 @@ export class LayerStore implements Store {
           return this.fetch(request, nextOptions);
         }) as Fetcher
       };
-      const response = await invokeLayer(layer, request, options);
+      const response = await invokeLayer(layer, request, newOptions);
       builder.with(response);
       if (!response || !this.options.ignoreSubsequentFullResponses) {
         return true;
