@@ -85,7 +85,10 @@ export class LayerStore implements Store {
       };
       const response = await invokeLayer(layer, request, options);
       builder.with(response);
-      return !this.options.ignoreSubsequentFullResponses || (response as PartialResponse).partial;
+      if (!response || !this.options.ignoreSubsequentFullResponses) {
+        return true;
+      }
+      return (response as PartialResponse).partial;
     };
 
     await layers.reduce(
