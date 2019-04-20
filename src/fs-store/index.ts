@@ -2,6 +2,13 @@ import { Store } from "../store";
 import { Request, Response } from "@opennetwork/http-representation";
 import { FSStoreOptions, FSStoreRequestOptions } from "./options";
 import { METHODS, MethodHandler, Fetcher } from "./methods";
+import getContentLocation from "./get-content-location";
+import getPath from "./get-path";
+
+export {
+  getContentLocation,
+  getPath
+};
 
 export * from "./options";
 
