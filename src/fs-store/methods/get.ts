@@ -4,7 +4,7 @@ import getPath from "../get-path";
 import getContentLocation from "../get-content-location";
 
 async function handleGetMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
-  const { contentLocation } = await getContentLocation(request, options);
+  const { contentLocation } = await getContentLocation(request, options, new URL(request.url).pathname.endsWith("/"));
 
   const headResponse = await fetch(
     new Request(

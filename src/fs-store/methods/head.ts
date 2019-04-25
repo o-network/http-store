@@ -35,7 +35,7 @@ function processIfModifiedSince(request: Request, options: FSStoreOptions, stat:
 
 async function handleHeadMethod(request: Request, options: FSStoreOptions): Promise<Response> {
 
-  const { contentLocation, stat } = await getContentLocation(request, options);
+  const { contentLocation, stat } = await getContentLocation(request, options, new URL(request.url).pathname.endsWith("/"));
 
   const headers = new Headers();
 
