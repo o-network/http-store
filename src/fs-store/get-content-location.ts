@@ -3,13 +3,13 @@ import { FSStoreOptions } from "./options";
 import fs from "fs";
 import getPath from "./get-path";
 
-export default async function getContentLocation(request: Request, options: FSStoreOptions): Promise<{ contentLocation?: string, stat: fs.Stats }> {
+export default async function getContentLocation(request: Request, options: FSStoreOptions, directory: boolean = false): Promise<{ contentLocation?: string, stat: fs.Stats }> {
   let contentLocation;
 
   // This allows an implementor to escape this entire process, if they return undefined, we'll use the original and not try and resolve
   // a content location
   if (options.getContentLocation) {
-    contentLocation = await options.getContentLocation(request, async (url: string) => getPath(url, options));
+    contentLocation = await options.getContentLocation(request, async (url: string) => getPath(url, options), directory);
   }
 
   const givenPath = await getPath(contentLocation || request.url, options);
@@ -29,7 +29,11 @@ export default async function getContentLocation(request: Request, options: FSSt
     return { stat: givenPathStat, contentLocation }; // Doesn't matter what it is, they aren't trying out extensions
   }
 
-  if (givenPathStat && givenPathStat.isFile()) {
+  if (givenPathStat && directory && givenPathStat.isDirectory()) {
+    return { stat: givenPathStat };
+  }
+
+  if (givenPathStat && !directory && givenPathStat.isFile()) {
     return { stat: givenPathStat };
   }
 
