@@ -39,6 +39,7 @@
     "esm": "^3.2.20",
     "fs-extra": "^7.0.1",
     "mime-types": "^2.1.23",
+    "negotiator": "^0.6.1",
     "rimraf": "^2.6.3",
     "tslint": "^5.14.0",
     "typescript": "^3.3.4000"

@@ -28,6 +28,19 @@ async function runExample(store) {
 
   assert(putResponse.ok);
 
+  const listResposne = await store.fetch(
+    new Request(
+      "https://store.open-network.app/example/",
+      {
+        method: "GET"
+      }
+    )
+  );
+
+  const documents = await listResposne.json();
+
+  assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/document$.txt:"));
+
   const getResponse = await store.fetch(
       new Request(
           documentUrl,
