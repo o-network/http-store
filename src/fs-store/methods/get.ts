@@ -113,11 +113,16 @@ async function listDirectory(request: Request, options: FSStoreOptions, path: st
 }
 
 async function handleGetMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
-  const { contentLocation, stat } = await getContentLocation(request, options, new URL(request.url).pathname.endsWith("/"));
+
+  const { contentLocation, stat } = await getContentLocation(request, options, false);
+  const { contentLocation: contentLocationDirectory, stat: statDirectory } = await getContentLocation(request, options, true);
+
+  const resultStat = stat && stat.isFile() ? stat : statDirectory;
+  const resultContentLocation = resultStat && resultStat.isFile() ? contentLocation : contentLocationDirectory;
 
   const headResponse = await fetch(
     new Request(
-      contentLocation || request.url,
+      resultContentLocation || request.url,
       {
         ...request,
         method: "HEAD"
@@ -132,14 +137,14 @@ async function handleGetMethod(request: Request, options: FSStoreOptions, fetch:
 
   const headers = new Headers(headResponse.headers);
 
-  if (contentLocation) {
-    headers.set("Content-Location", contentLocation);
+  if (resultContentLocation) {
+    headers.set("Content-Location", resultContentLocation);
   }
 
-  const path = await getPath(contentLocation || request.url, options);
+  const path = await getPath(resultContentLocation || request.url, options);
 
-  if (path.endsWith("/")) {
-    return listDirectory(request, options, path, contentLocation || request.url, stat, headers);
+  if (resultStat && resultStat.isDirectory()) {
+    return listDirectory(request, options, path, resultContentLocation || request.url, resultStat, headers);
   }
 
   const body: Uint8Array = await new Promise(
