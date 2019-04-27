@@ -33,6 +33,20 @@ function processIfModifiedSince(request: Request, options: FSStoreOptions, stat:
   });
 }
 
+async function links(request: Request, stat: fs.Stats, response: Response, options: FSStoreOptions, ) {
+  if (!options.getLinks) {
+    return;
+  }
+  const links = await options.getLinks(request, response, stat);
+  const linkValues = response.headers.getAll("Link");
+  links.forEach(
+    ([rel, value]) => {
+      linkValues.push(`<${value}>; rel="${rel}"`);
+    }
+  );
+  response.headers.set("Link", linkValues.join(", "));
+}
+
 async function handleHeadMethod(request: Request, options: FSStoreOptions): Promise<Response> {
 
   const { contentLocation, stat } = await getContentLocation(request, options);
@@ -85,6 +99,8 @@ async function handleHeadMethod(request: Request, options: FSStoreOptions): Prom
 
   response.headers.set("Last-Modified", stat.mtime.toUTCString());
   response.headers.set("Content-Length", stat.size.toString());
+
+  await links(request, stat, response, options);
 
   return response;
 }

@@ -74,7 +74,7 @@ export default async function getContentLocation(request, getPath) {
     return undefined;
   }
 
-  const baseName = basename(path, extname(path));
+  const baseName = url.pathname.substr(url.pathname.lastIndexOf("/") + 1);
 
   const headers = {
     accept: request.headers.has("accept") ? request.headers.getAll("accept").join(",") : undefined
@@ -140,6 +140,9 @@ export default async function getContentLocation(request, getPath) {
     .find(value => value[1] === preferredContentType);
 
   const toUse = matched ? matched[0] : matching[0];
+  if (!toUse) {
+    return undefined;
+  }
   url.pathname += `$${extname(toUse)}`;
   return url.toString();
 };

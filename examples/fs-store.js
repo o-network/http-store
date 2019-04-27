@@ -7,6 +7,8 @@ import { mkdirp } from "fs-extra";
 import rimraf from "rimraf";
 import { lookup } from "mime-types";
 import getContentLocation from "./get-content-location";
+import getLinks from "./get-links";
+import li from "li";
 
 async function runExample(store) {
   const documentUrl = "https://store.open-network.app/example/document.txt";
@@ -41,7 +43,8 @@ async function runExample(store) {
 
   const documents = await listResponse.json();
 
-  assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/document$.txt:"));
+  assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/document.txt:"));
+  assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/index.html:"));
 
   const indexResponse = await store.fetch(
     new Request(
@@ -57,13 +60,28 @@ async function runExample(store) {
 
   assert((await indexResponse.text()).includes("<!DOCTYPE html>"));
 
+  const putAclResponse = await store.fetch(
+    new Request(
+      `${documentUrl}.acl`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "text/turtle"
+        },
+        body: ""
+      }
+    )
+  );
+
+  assert(putAclResponse.ok);
+
   const getResponse = await store.fetch(
       new Request(
           documentUrl,
           {
               method: "GET",
               headers: {
-                  "Accept": "text-plain"
+                  "Accept": "text/plain"
               }
           }
       )
@@ -73,10 +91,55 @@ async function runExample(store) {
 
   assert(getResponse.headers.get("Content-Type") === "text/plain");
 
+  const links = li.parse(getResponse.headers.get("Link"));
+
+  assert(links["type"] === "http://www.w3.org/ns/ldp#Resource");
+  assert(links["acl"] === `${documentUrl}.acl`);
+
   const body = await asBuffer(getResponse);
 
   assert(body instanceof Uint8Array);
   assert(body.toString() === documentContent.toString());
+
+  const deleteResponse = await store.fetch(
+    new Request(
+      documentUrl,
+      {
+        method: "DELETE"
+      }
+    )
+  );
+
+  assert(deleteResponse.ok);
+
+  const [getAfterDeleteResponse, getACLAfterDeleteResponse] = await Promise.all([
+    store.fetch(
+      new Request(
+        documentUrl,
+        {
+          method: "GET",
+          headers: {
+            "Accept": "text/plain"
+          }
+        }
+      )
+    ),
+    store.fetch(
+      new Request(
+        `${documentUrl}.acl`,
+        {
+          method: "GET",
+          headers: {
+            "Accept": "text/turtle"
+          }
+        }
+      )
+    )
+  ]);
+
+  assert(getAfterDeleteResponse.status === 404);
+  assert(getACLAfterDeleteResponse.status === 404);
+
 }
 
 const getContentType = request => {
@@ -90,16 +153,25 @@ const getContentType = request => {
   return lookup(new URL(request.url).pathname)
 };
 
-runExample(
-  new FSStore({
-    fs,
-    rootPath: "./store",
-    statusCodes: http.STATUS_CODES,
-    mkdirp,
-    rimraf,
-    getContentType,
-    getContentLocation
-  })
-)
+const options = {
+  fs,
+  rootPath: "./store",
+  statusCodes: http.STATUS_CODES,
+  mkdirp,
+  rimraf,
+  getContentType,
+  getContentLocation,
+  isLinkedDependent: (request, rel, value) => (
+    [
+      "acl",
+      "describedBy"
+    ].includes(rel)
+  ),
+  getLinks: (request, response, stat) => getLinks(request, response, stat, store)
+};
+
+const store = new FSStore(options);
+
+runExample(store)
     .then(() => console.log("Complete!"))
     .catch((error) => console.error("Received error!", error));

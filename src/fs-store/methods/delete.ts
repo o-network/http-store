@@ -3,6 +3,7 @@ import { Request, Response } from "@opennetwork/http-representation";
 import getPath from "../get-path";
 import getContentLocation from "../get-content-location";
 import { Fetcher } from "./";
+import li from "li";
 
 function isRimRafAvailable(options: FSStoreOptions): boolean {
   if (!options.rimraf) {
@@ -22,6 +23,29 @@ function isRimRafAvailable(options: FSStoreOptions): boolean {
   ];
   const missing = required.findIndex(name => !((options.fs as any)[name] instanceof Function));
   return missing === -1;
+}
+
+async function deleteDependentLinks(request: Request, options: FSStoreOptions, headResponse: Response, fetch: Fetcher) {
+  if (!options.isLinkedDependent) {
+    return;
+  }
+  const links = li.parse(headResponse.headers.getAll("Link").join(", "));
+  return await Promise.all(
+    Object.keys(links)
+      .filter(rel => options.isLinkedDependent(request, rel, links[rel]))
+      .map(rel => links[rel])
+      .map(
+        async url => fetch(
+          new Request(
+            url,
+            {
+              method: "DELETE",
+              headers: request.headers
+            }
+          )
+        )
+      )
+  );
 }
 
 async function handleDeleteMethod(request: Request, options: FSStoreOptions, fetch: Fetcher): Promise<Response> {
@@ -76,6 +100,8 @@ async function handleDeleteMethod(request: Request, options: FSStoreOptions, fet
       )
     );
   }
+
+  await deleteDependentLinks(request, options, headResponse, fetch);
 
   return new Response(undefined, {
     status: 204,
