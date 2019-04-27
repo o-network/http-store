@@ -18,6 +18,10 @@ export default async function getContentLocation(request, getPath) {
 
   const url = new URL(request.url);
 
+  if (url.pathname.endsWith(".acl") || url.pathname.endsWith(".meta")) {
+    return undefined; // Good to go
+  }
+
   if (request.method === "POST") {
 
     // Must be a container

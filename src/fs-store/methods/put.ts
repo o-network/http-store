@@ -97,7 +97,8 @@ async function handlePutMethod(request: Request, options: FSStoreOptions, fetch:
     return earlyResponse;
   }
 
-  const body = await asBuffer(request);
+  const body = await asBuffer(request)
+    .then(value => value === undefined ? Uint8Array.from([]) : value);
 
   await new Promise(
     (resolve, reject) => options.fs.writeFile(
