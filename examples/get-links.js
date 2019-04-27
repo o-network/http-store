@@ -46,7 +46,7 @@ export default async (request, response, stat, store) => {
         }
       )
     );
-    const metaHead = await store.fetch(
+    const metaHead = stat.isDirectory() && await store.fetch(
       new Request(
         metaUrl.toString(),
         {
@@ -62,7 +62,7 @@ export default async (request, response, stat, store) => {
       forUrl.push(["acl", aclUrl.toString()])
     }
 
-    if (metaHead.ok) {
+    if (metaHead && metaHead.ok) {
       forUrl.push(["describedBy", metaUrl.toString()])
     }
 
