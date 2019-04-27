@@ -7,8 +7,9 @@ import handlePost from "./post";
 import handlePut from "./put";
 import { Request, Response } from "@opennetwork/http-representation";
 import { FSStoreOptions } from "../options";
+import { Partial } from "../../partial";
 
-export type Fetcher = (request: Request) => Promise<Response>;
+export type Fetcher = (request: Request, options?: Partial<FSStoreOptions>) => Promise<Response>;
 export type MethodHandler = (request: Request, options: FSStoreOptions, fetch: Fetcher) => Promise<Response>;
 
 export {

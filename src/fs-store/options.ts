@@ -70,9 +70,11 @@ export type FSStoreOptions = {
   getPossibleSuffixes?: (request: Request, path: string) => string[] | Promise<string[]>;
   getContentTypeBody?: true | false | ((request: Request, contentLocation: string, body: Uint8Array) => string | Promise<string>);
   getContentType?: (request: Request, contentLocation: string, body?: Uint8Array) => string | Promise<string>;
-
-} & FSStoreRequestOptions;
-
-export type FSStoreRequestOptions = {
-  fetch?: (request: Request, options?: FSStoreRequestOptions | FSStoreOptions) => Promise<Response>;
+  getLinkedResources?: (request: Request) => Promise<string[]>;
+  createWriteLock?: (request: Request) => Promise<() => Promise<void>>;
+  createReadLock?: (request: Request) => Promise<() => Promise<void>>;
+  ignoreLock?: boolean;
+  isWrite?: (request: Request) => boolean;
+  isRead?: (request: Request) => boolean;
+  fetch?: (request: Request, options: FSStoreOptions) => Promise<Response>;
 };

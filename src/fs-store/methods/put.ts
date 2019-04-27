@@ -3,6 +3,7 @@ import { Request, Response, asBuffer } from "@opennetwork/http-representation";
 import getPath from "../get-path";
 import fs from "fs";
 import getContentLocation from "../get-content-location";
+import { Fetcher } from "./";
 
 function isMakeDirectoryAvailable(options: FSStoreOptions): boolean {
   if (!options.mkdirp) {
@@ -57,7 +58,7 @@ async function ensureDirectoryExists(path: string, options: FSStoreOptions): Pro
   );
 }
 
-async function handlePutMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+async function handlePutMethod(request: Request, options: FSStoreOptions, fetch: Fetcher): Promise<Response> {
   const { contentLocation } = await getContentLocation(request, options);
 
   const headResponse = await fetch(
@@ -67,7 +68,10 @@ async function handlePutMethod(request: Request, options: FSStoreOptions, fetch:
         method: "HEAD",
         headers: request.headers
       }
-    )
+    ),
+    {
+      ignoreLock: true
+    }
   );
 
   // 404 is okay, as we will create it

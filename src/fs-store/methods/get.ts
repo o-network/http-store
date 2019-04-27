@@ -2,7 +2,8 @@ import { FSStoreOptions } from "../options";
 import { Request, Response, Headers } from "@opennetwork/http-representation";
 import getPath from "../get-path";
 import getContentLocation from "../get-content-location";
-import fs, { Dirent } from "fs";
+import fs from "fs";
+import { Fetcher } from "./";
 
 async function listDirectory(request: Request, options: FSStoreOptions, path: string, contentLocation: string, stat: fs.Stats, headers: Headers): Promise<Response> {
   if (!options.fs.readdir) {
@@ -115,7 +116,7 @@ async function listDirectory(request: Request, options: FSStoreOptions, path: st
   );
 }
 
-async function handleGetMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+async function handleGetMethod(request: Request, options: FSStoreOptions, fetch: Fetcher): Promise<Response> {
 
   const { contentLocation, stat } = await getContentLocation(request, options);
 
@@ -126,7 +127,11 @@ async function handleGetMethod(request: Request, options: FSStoreOptions, fetch:
         ...request,
         method: "HEAD"
       }
-    )
+    ),
+    {
+      // We will be already locked here
+      ignoreLock: true
+    }
   );
 
   // Could be 416 or 404 etc

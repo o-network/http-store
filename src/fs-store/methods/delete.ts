@@ -2,6 +2,7 @@ import { FSStoreOptions } from "../options";
 import { Request, Response } from "@opennetwork/http-representation";
 import getPath from "../get-path";
 import getContentLocation from "../get-content-location";
+import { Fetcher } from "./";
 
 function isRimRafAvailable(options: FSStoreOptions): boolean {
   if (!options.rimraf) {
@@ -23,7 +24,7 @@ function isRimRafAvailable(options: FSStoreOptions): boolean {
   return missing === -1;
 }
 
-async function handleDeleteMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+async function handleDeleteMethod(request: Request, options: FSStoreOptions, fetch: Fetcher): Promise<Response> {
   const { contentLocation } = await getContentLocation(request, options);
 
   const headResponse = await fetch(
@@ -33,7 +34,10 @@ async function handleDeleteMethod(request: Request, options: FSStoreOptions, fet
         method: "HEAD",
         headers: request.headers
       }
-    )
+    ),
+    {
+      ignoreLock: true
+    }
   );
 
   // Could be 416 or 404 etc

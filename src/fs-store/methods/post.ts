@@ -6,6 +6,7 @@ import { resolve } from "../join-path";
 import isType from "../is-type";
 import globalThis from "@ungap/global-this";
 import getContentLocation from "../get-content-location";
+import { Fetcher } from "./";
 
 async function getBody(request: Request): Promise<Uint8Array> {
   if ("Buffer" in globalThis) {
@@ -29,7 +30,7 @@ function getUrlForFile(baseRequest: Request, name: string): string {
   return url.toString();
 }
 
-async function handleMultipart(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+async function handleMultipart(request: Request, options: FSStoreOptions, fetch: Fetcher): Promise<Response> {
   const body: Uint8Array = await getBody(request);
   const boundary = Multipart.getBoundary(request.headers.get("Content-Type"));
   const parsed = Multipart.Parse(body, boundary);
@@ -90,7 +91,7 @@ async function handleMultipart(request: Request, options: FSStoreOptions, fetch:
   );
 }
 
-async function handlePostMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+async function handlePostMethod(request: Request, options: FSStoreOptions, fetch: Fetcher): Promise<Response> {
   if (isType(request.headers, "multipart/form-data")) {
     return handleMultipart(request, options, fetch);
   }
@@ -103,9 +104,12 @@ async function handlePostMethod(request: Request, options: FSStoreOptions, fetch
         method: "PUT",
         headers: request.headers,
         body: request
-      }
+      },
     ),
-    options,
+    {
+      ...options,
+      ignoreLock: true
+    },
     fetch
   );
 }

@@ -3,6 +3,7 @@ import { Request, Response, Headers, asBuffer } from "@opennetwork/http-represen
 import getPath from "../get-path";
 import { resolve } from "../join-path";
 import getContentLocation from "../get-content-location";
+import { Fetcher } from "./";
 
 function getSourceURI(destinationUrl: string, source: string): string {
   const destination = new URL(destinationUrl);
@@ -18,7 +19,7 @@ function getSourceURI(destinationUrl: string, source: string): string {
   ).toString();
 }
 
-async function handleCopyMethod(request: Request, options: FSStoreOptions, fetch: (request: Request) => Promise<Response>): Promise<Response> {
+async function handleCopyMethod(request: Request, options: FSStoreOptions, fetch: Fetcher): Promise<Response> {
   const { contentLocation } = await getContentLocation(request, options);
 
   const source = request.headers.get("Source");
@@ -59,7 +60,7 @@ async function handleCopyMethod(request: Request, options: FSStoreOptions, fetch
     sourceResponse = await fetch(new Request(getSourceURI(request.url, source), {
       headers: new Headers(request.headers),
       method: "GET"
-    }));
+    }), { ignoreLock: true });
   } else if (!options.getExternalResource) {
     return new Response(undefined, {
       status: 501,
@@ -95,7 +96,7 @@ async function handleCopyMethod(request: Request, options: FSStoreOptions, fetch
     body: await asBuffer(sourceResponse),
     headers: request.headers,
     method: "PUT"
-  }));
+  }), { ignoreLock: true });
 
   if (!response.ok) {
     return response;
