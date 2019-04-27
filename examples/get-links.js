@@ -11,6 +11,7 @@ export default async (request, response, stat, store) => {
   let links = [];
 
   if (stat.isDirectory()) {
+    links.push(["type", "http://www.w3.org/ns/ldp#Container"]);
     links.push(["type", "http://www.w3.org/ns/ldp#BasicContainer"]);
   } else if (stat.isFile()) {
     links.push(["type", "http://www.w3.org/ns/ldp#Resource"]);

@@ -41,6 +41,10 @@ async function runExample(store) {
     )
   );
 
+  const listLinks = li.parse(listResponse.headers.get("Link"));
+
+  assert(listLinks["type"] === "http://www.w3.org/ns/ldp#BasicContainer");
+
   const documents = await listResponse.json();
 
   assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/document.txt:"));
