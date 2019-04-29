@@ -36,6 +36,7 @@
     "@types/ncp": "^2.0.1",
     "@types/node": "^11.11.5",
     "@types/rimraf": "^2.0.2",
+    "dat-node": "^3.5.15",
     "esm": "^3.2.20",
     "fs-extra": "^7.0.1",
     "mime-types": "^2.1.23",

@@ -1,10 +1,9 @@
-import fs from "fs";
 import { extension, lookup } from "mime-types";
-import { basename, dirname, extname } from "path";
+import { dirname, extname } from "path";
 import Negotiator from "negotiator";
 import UUID from "pure-uuid";
 
-async function stat(path) {
+async function stat(fs, path) {
   return new Promise(
     resolve => fs.stat(
       path,
@@ -13,7 +12,7 @@ async function stat(path) {
   );
 }
 
-export default async function getContentLocation(request, getPath) {
+export default (fs) => async function getContentLocation(request, getPath) {
   const magicExtensionRegex = /\$\.[^.]+/i;
 
   const url = new URL(request.url);
@@ -32,7 +31,7 @@ export default async function getContentLocation(request, getPath) {
     url.pathname += new UUID(4).format("std");
 
     const path = await getPath(url.toString());
-    const pathStat = await stat(path);
+    const pathStat = await stat(fs, path);
 
     if (pathStat && pathStat.isDirectory()) {
       // Loop around, we need to select another
@@ -49,7 +48,7 @@ export default async function getContentLocation(request, getPath) {
 
   const path = await getPath(request.url);
 
-  const pathStat = await stat(path);
+  const pathStat = await stat(fs, path);
 
   if (pathStat && pathStat.isFile()) {
     // Is already correct and we can continue on
@@ -72,7 +71,7 @@ export default async function getContentLocation(request, getPath) {
 
   const directory = isPathDirectory ? path : dirname(path);
 
-  const directoryStat = isPathDirectory ? pathStat : await stat(directory);
+  const directoryStat = isPathDirectory ? pathStat : await stat(fs, directory);
 
   if (!(directoryStat && directoryStat.isDirectory())) {
     return undefined;
@@ -88,7 +87,7 @@ export default async function getContentLocation(request, getPath) {
 
   if (isPathDirectory && negotiator.mediaType(["text/html"])) {
     const indexPath = `${path.replace(/\/$/, "")}/index.html`;
-    const indexStat = await stat(indexPath);
+    const indexStat = await stat(fs, indexPath);
     if (!(indexStat && indexStat.isFile())) {
       return undefined;
     }
@@ -99,19 +98,22 @@ export default async function getContentLocation(request, getPath) {
   const files = await new Promise(
     (resolve, reject) => fs.readdir(
       directory,
-      {
-        encoding: "utf-8",
-        withFileTypes: true
-      },
       (error, files) => error ? reject(error) : resolve(files)
     )
   );
 
-  const matching = files
-    .filter(file => file.isFile())
-    .filter(file => magicExtensionRegex.test(file.name))
-    .filter(file => file.name.replace(magicExtensionRegex, "") === baseName)
-    .map(file => file.name);
+  const matching = (
+    await Promise.all(
+      files
+        .filter(file => magicExtensionRegex.test(file))
+        .filter(file => file.replace(magicExtensionRegex, "") === baseName)
+        .map(async file => {
+          const fileStat = await stat(`${directory}/${file}`);
+          return fileStat && fileStat.isFile() ? file : undefined
+        })
+    )
+  )
+    .filter(value => value);
 
   if (isPathDirectory && matching.length === 0) {
     if (!url.pathname.endsWith("/")) {

@@ -1,6 +1,5 @@
 import { Request, asBuffer } from "@opennetwork/http-representation";
 import { FSStore } from "../dist";
-import fs from "fs";
 import http from "http";
 import assert from "assert";
 import { mkdirp } from "fs-extra";
@@ -9,115 +8,99 @@ import { lookup } from "mime-types";
 import getContentLocation from "./get-content-location";
 import getLinks from "./get-links";
 import li from "li";
+import dat from "dat-node";
 
-async function runExample(store) {
-  const documentUrl = "https://store.open-network.app/example/document.txt";
-  const documentContent = Buffer.from("test", "utf-8");
+dat("./store/", { indexing: false }, (error, dat) => {
+  if (error) {
+    return console.error(error);
+  }
 
-  const putResponse = await store.fetch(
+  async function runExample(store) {
+    const directory = "https://store.open-network.app/example";
+    const documentUrl = `${directory}/document.txt`;
+    const documentContent = Buffer.from("test", "utf-8");
+
+    const putIndexResponse = await store.fetch(
       new Request(
-          documentUrl,
-          {
-              method: "PUT",
-              body: documentContent,
-              headers: {
-                  "Content-Type": "text/plain"
-              }
+        `${directory}/index.html`,
+        {
+          method: "PUT",
+          body: "<!DOCTYPE html><html><body><p>Hello!</p></body></html>\n",
+          headers: {
+            "Content-Type": "text/html"
           }
+        }
       )
-  );
+    );
 
-  assert(putResponse.ok);
+    assert(putIndexResponse.ok);
 
-  const listResponse = await store.fetch(
-    new Request(
-      "https://store.open-network.app/example/",
-      {
-        method: "GET",
-        headers: {
-          "Accept": "application/ld+json"
-        }
-      }
-    )
-  );
-
-  const listLinks = li.parse(listResponse.headers.get("Link"));
-
-  assert(listLinks["type"] === "http://www.w3.org/ns/ldp#BasicContainer");
-
-  const documents = await listResponse.json();
-
-  assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/document.txt:"));
-  assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/index.html:"));
-
-  const indexResponse = await store.fetch(
-    new Request(
-      "https://store.open-network.app/example/",
-      {
-        method: "GET",
-        headers: {
-          "Accept": "text/html"
-        }
-      }
-    )
-  );
-
-  assert((await indexResponse.text()).includes("<!DOCTYPE html>"));
-
-  const putAclResponse = await store.fetch(
-    new Request(
-      `${documentUrl}.acl`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "text/turtle"
-        },
-        body: ""
-      }
-    )
-  );
-
-  assert(putAclResponse.ok);
-
-  const getResponse = await store.fetch(
+    const putResponse = await store.fetch(
       new Request(
-          documentUrl,
-          {
-              method: "GET",
-              headers: {
-                  "Accept": "text/plain"
-              }
+        documentUrl,
+        {
+          method: "PUT",
+          body: documentContent,
+          headers: {
+            "Content-Type": "text/plain"
           }
+        }
       )
-  );
+    );
 
-  assert(getResponse.ok);
+    assert(putResponse.ok);
 
-  assert(getResponse.headers.get("Content-Type") === "text/plain");
+    const listResponse = await store.fetch(
+      new Request(
+        `${directory}/`,
+        {
+          method: "GET",
+          headers: {
+            "Accept": "application/ld+json"
+          }
+        }
+      )
+    );
 
-  const links = li.parse(getResponse.headers.get("Link"));
+    const listLinks = li.parse(listResponse.headers.get("Link"));
 
-  assert(links["type"] === "http://www.w3.org/ns/ldp#Resource");
-  assert(links["acl"] === `${documentUrl}.acl`);
+    assert(listLinks["type"] === "http://www.w3.org/ns/ldp#BasicContainer");
 
-  const body = await asBuffer(getResponse);
+    const documents = await listResponse.json();
 
-  assert(body instanceof Uint8Array);
-  assert(body.toString() === documentContent.toString());
+    assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/document.txt:"));
+    assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/index.html:"));
 
-  const deleteResponse = await store.fetch(
-    new Request(
-      documentUrl,
-      {
-        method: "DELETE"
-      }
-    )
-  );
+    const indexResponse = await store.fetch(
+      new Request(
+        `${directory}/`,
+        {
+          method: "GET",
+          headers: {
+            "Accept": "text/html"
+          }
+        }
+      )
+    );
 
-  assert(deleteResponse.ok);
+    assert((await indexResponse.text()).includes("<!DOCTYPE html>"));
 
-  const [getAfterDeleteResponse, getACLAfterDeleteResponse] = await Promise.all([
-    store.fetch(
+    const putAclResponse = await store.fetch(
+      new Request(
+        `${documentUrl}.acl`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "text/turtle"
+          },
+          body: ""
+        }
+      )
+    );
+
+    assert(putAclResponse.ok);
+
+    const getResponse = await store.fetch(
       new Request(
         documentUrl,
         {
@@ -127,55 +110,100 @@ async function runExample(store) {
           }
         }
       )
-    ),
-    store.fetch(
+    );
+
+    assert(getResponse.ok);
+
+    assert(getResponse.headers.get("Content-Type") === "text/plain");
+
+    const links = li.parse(getResponse.headers.get("Link"));
+
+    assert(links["type"] === "http://www.w3.org/ns/ldp#Resource");
+    assert(links["acl"] === `${documentUrl}.acl`);
+
+    const body = await asBuffer(getResponse);
+
+    assert(body instanceof Uint8Array);
+    assert(body.toString() === documentContent.toString());
+
+    const deleteResponse = await store.fetch(
       new Request(
-        `${documentUrl}.acl`,
+        documentUrl,
         {
-          method: "GET",
-          headers: {
-            "Accept": "text/turtle"
-          }
+          method: "DELETE"
         }
       )
-    )
-  ]);
+    );
 
-  assert(getAfterDeleteResponse.status === 404);
-  assert(getACLAfterDeleteResponse.status === 404);
+    assert(deleteResponse.ok);
 
-}
+    const [getAfterDeleteResponse, getACLAfterDeleteResponse] = await Promise.all([
+      store.fetch(
+        new Request(
+          documentUrl,
+          {
+            method: "GET",
+            headers: {
+              "Accept": "text/plain"
+            }
+          }
+        )
+      ),
+      store.fetch(
+        new Request(
+          `${documentUrl}.acl`,
+          {
+            method: "GET",
+            headers: {
+              "Accept": "text/turtle"
+            }
+          }
+        )
+      )
+    ]);
 
-const getContentType = request => {
-  if (request.method !== "HEAD" && request.method !== "GET") {
-    return undefined; // No content
+    assert(getAfterDeleteResponse.status === 404);
+    assert(getACLAfterDeleteResponse.status === 404);
+
   }
-  // Provided content type already
-  if (request.headers.get("Content-Type")) {
-    return request.headers.get("Content-Type");
-  }
-  return lookup(new URL(request.url).pathname)
-};
 
-const options = {
-  fs,
-  rootPath: "./store",
-  statusCodes: http.STATUS_CODES,
-  mkdirp,
-  rimraf,
-  getContentType,
-  getContentLocation,
-  isLinkedDependent: (request, rel, value) => (
-    [
-      "acl",
-      "describedBy"
-    ].includes(rel)
-  ),
-  getLinks: (request, response, stat) => getLinks(request, response, stat, store)
-};
+  const getContentType = request => {
+    if (request.method !== "HEAD" && request.method !== "GET") {
+      return undefined; // No content
+    }
+    // Provided content type already
+    if (request.headers.get("Content-Type")) {
+      return request.headers.get("Content-Type");
+    }
+    return lookup(new URL(request.url).pathname)
+  };
 
-const store = new FSStore(options);
+  dat.joinNetwork();
 
-runExample(store)
+  const options = {
+    fs: dat.archive,
+    rootPath: "./",
+    statusCodes: http.STATUS_CODES,
+    mkdirp,
+    rimraf,
+    getContentType,
+    getContentLocation: getContentLocation(dat.archive),
+    isLinkedDependent: (request, rel, value) => (
+      [
+        "acl",
+        "describedBy"
+      ].includes(rel)
+    ),
+    getLinks: (request, response, stat) => getLinks(request, response, stat, store)
+  };
+
+  const store = new FSStore(options);
+
+  runExample(store)
     .then(() => console.log("Complete!"))
-    .catch((error) => console.error("Received error!", error));
+    .catch((error) => console.error("Received error!", error, error.stack))
+    .then(() => {
+      dat.close(() => process.exit(0));
+    })
+
+});
