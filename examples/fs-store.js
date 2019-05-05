@@ -68,8 +68,8 @@ dat("./store/", { indexing: false }, (error, dat) => {
 
     const documents = await listResponse.json();
 
-    assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/document.txt:"));
-    assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/index.html:"));
+    assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/document.txt"));
+    assert(documents["@graph"].find(({ "@id": id }) => id === "https://store.open-network.app/example/index.html"));
 
     const indexResponse = await store.fetch(
       new Request(
