@@ -53,18 +53,25 @@ async function listDirectory(request: Request, options: FSStoreOptions, path: st
     [contentLocation]: contentLocation
   };
 
+  function childId({ stat, contentLocation }: { stat: fs.Stats, contentLocation: string }) {
+    if (!stat.isDirectory() || contentLocation.endsWith("/")) {
+      return contentLocation;
+    }
+    return `${contentLocation}/`;
+  }
+
   const body = {
     "@context": context,
     "@graph": [
       {
-        "@id": `${contentLocation}:`,
+        "@id": contentLocation,
         "@type": [
           "ldp:BasicContainer",
           "ldp:Container"
         ],
         "ldp:contains": children.map(
           child => ({
-            "@id": `${child.contentLocation}:`
+            "@id": childId(child)
           })
         ),
         "terms:modified": {
@@ -81,12 +88,13 @@ async function listDirectory(request: Request, options: FSStoreOptions, path: st
       .concat(
         children.map(
           child => ({
-            "@id": `${child.contentLocation}:`,
+            "@id": childId(child),
             "@type": [
-              "ldp:BasicContainer",
-              "ldp:Container",
+              child.stat.isDirectory() ? "ldp:BasicContainer" : undefined,
+              child.stat.isDirectory() ? "ldp:Container" : undefined,
               "ldp:Resource"
-            ],
+            ]
+              .filter(value => value),
             "terms:modified": {
               "@type": "xsd:dateTime",
               "@value": child.stat.mtime.toUTCString()
