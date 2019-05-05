@@ -1,6 +1,6 @@
 {
   "name": "@opennetwork/http-store",
-  "version": "5.0.1",
+  "version": "6.0.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
