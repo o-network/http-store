@@ -76,11 +76,11 @@ async function listDirectory(request: Request, options: FSStoreOptions, path: st
         ),
         "terms:modified": {
           "@type": "xsd:dateTime",
-          "@value": stat.mtime.toUTCString()
+          "@value": new Date(stat.mtime).toUTCString()
         },
         "st:mtime": {
           "@type": "xsd:decimal",
-          "@value": stat.mtime.getTime() / 1000
+          "@value": new Date(stat.mtime).getTime() / 1000
         },
         "st:size": stat.size
       } as any
@@ -97,11 +97,11 @@ async function listDirectory(request: Request, options: FSStoreOptions, path: st
               .filter(value => value),
             "terms:modified": {
               "@type": "xsd:dateTime",
-              "@value": child.stat.mtime.toUTCString()
+              "@value": new Date(child.stat.mtime).toUTCString()
             },
             "st:mtime": {
               "@type": "xsd:decimal",
-              "@value": child.stat.mtime.getTime() / 1000
+              "@value": new Date(child.stat.mtime).getTime() / 1000
             },
             "st:size": child.stat.size
           })

@@ -9,7 +9,7 @@ function processIfUnmodifiedSince(request: Request, options: FSStoreOptions, sta
   const ifUnmodifiedSince = request.headers.get("If-Unmodified-Since");
   const date = new Date(ifUnmodifiedSince);
 
-  if (date.getTime() > stat.mtime.getTime()) {
+  if (date.getTime() > new Date(stat.mtime).getTime()) {
     return undefined;
   }
 
@@ -23,7 +23,7 @@ function processIfModifiedSince(request: Request, options: FSStoreOptions, stat:
   const ifModifiedSince = request.headers.get("If-Modified-Since");
   const date = new Date(ifModifiedSince);
 
-  if (date.getTime() < stat.mtime.getTime()) {
+  if (date.getTime() < new Date(stat.mtime).getTime()) {
     return undefined;
   }
 
@@ -97,7 +97,7 @@ async function handleHeadMethod(request: Request, options: FSStoreOptions): Prom
     }
   }
 
-  response.headers.set("Last-Modified", stat.mtime.toUTCString());
+  response.headers.set("Last-Modified", new Date(stat.mtime).toUTCString());
   response.headers.set("Content-Length", stat.size.toString());
 
   await links(request, stat, response, options);

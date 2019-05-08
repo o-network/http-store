@@ -134,7 +134,7 @@ async function handlePutMethod(request: Request, options: FSStoreOptions, fetch:
     headers: headResponse.headers
   });
 
-  response.headers.set("Last-Modified", stat.mtime.toUTCString());
+  response.headers.set("Last-Modified", new Date(stat.mtime).toUTCString());
 
   if (status === 201) {
     response.headers.set("Location", request.url);
